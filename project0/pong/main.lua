@@ -232,20 +232,66 @@ function love.update(dt)
     --
     -- paddles can move no matter what state we're in
     --
-    -- player 1
-    if love.keyboard.isDown('w') then
-        player1.dy = -PADDLE_SPEED
-    elseif love.keyboard.isDown('s') then
-        player1.dy = PADDLE_SPEED
+    --[[
+        -- player 1 movement
+        -- move the paddle based on input
+
+        if love.keyboard.isDown('w') then
+            player1.dy = -PADDLE_SPEED
+        elseif love.keyboard.isDown('s') then
+            player1.dy = PADDLE_SPEED
+        else
+            player1.dy = 0
+        end
+    ]]
+
+    -- player 1 movement
+    -- move the paddle based on the ball's position
+    if ball.dx < 0 then
+        -- if the middle of the ball is above the center of the paddle, move up
+        if ball.y + 2 < player1.y + 10  then
+            player1.dy = -PADDLE_SPEED
+        -- if the middle of the ball is below the center of the paddle, move down
+        elseif ball.y + 2 > player1.y + 10 then
+            player1.dy = PADDLE_SPEED
+        -- if the middle of the ball is in the center of the paddle, don't move
+        else
+            player1.dy = 0
+        end
     else
         player1.dy = 0
     end
 
-    -- player 2
+    --[[ 
+        --player 2 movement 
+        -- In this block of code the movement happens by pressing the up and down keys. 
     if love.keyboard.isDown('up') then
         player2.dy = -PADDLE_SPEED
     elseif love.keyboard.isDown('down') then
         player2.dy = PADDLE_SPEED
+    else
+        player2.dy = 0
+    end
+    --]]
+
+    --[[
+        player 2 movement
+        move the player's paddle according to the balls y position.
+        2 is ball hight / 2, so the center of the ball
+        10 is the paddle height / 2
+    --]]
+    -- move player2 paddle only when the ball is moving to the right
+    if ball.dx > 0 then
+        -- if the middle of the ball is above the center of the paddle, move up
+        if ball.y + 2 < player2.y + 10  then
+            player2.dy = -PADDLE_SPEED
+        -- if the middle of the ball is below the center of the paddle, move down
+        elseif ball.y + 2 > player2.y + 10 then
+            player2.dy = PADDLE_SPEED
+        -- if the middle of the ball is in the center of the paddle, don't move
+        else
+            player2.dy = 0
+        end
     else
         player2.dy = 0
     end
