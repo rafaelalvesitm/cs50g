@@ -86,6 +86,9 @@ function love.load()
         ['hurt'] = love.audio.newSource('hurt.wav', 'static'),
         ['score'] = love.audio.newSource('score.wav', 'static'),
 
+        -- Added pause audio
+        ['pause'] = love.audio.newSource('pause.wav', 'static'),
+
         -- https://freesound.org/people/xsgianni/sounds/388079/
         ['music'] = love.audio.newSource('marios_way.mp3', 'static')
     }
@@ -106,7 +109,10 @@ function love.load()
         ['title'] = function() return TitleScreenState() end,
         ['countdown'] = function() return CountdownState() end,
         ['play'] = function() return PlayState() end,
-        ['score'] = function() return ScoreState() end
+        ['score'] = function() return ScoreState() end, 
+        -- Add a pause state
+        ['pause'] = function() return PauseState() end
+
     }
     gStateMachine:change('title')
 

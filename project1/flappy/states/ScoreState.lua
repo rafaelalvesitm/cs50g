@@ -8,6 +8,11 @@
     PlayState when they collide with a Pipe.
 ]]
 
+-- Define medal images
+local bronzeMedal = love.graphics.newImage('bronze_medal.png')
+local silverMedal = love.graphics.newImage('silver_medal.png')
+local goldMedal = love.graphics.newImage('gold_medal.png')
+
 ScoreState = Class{__includes = BaseState}
 
 --[[
@@ -33,5 +38,21 @@ function ScoreState:render()
     love.graphics.setFont(mediumFont)
     love.graphics.printf('Score: ' .. tostring(self.score), 0, 100, VIRTUAL_WIDTH, 'center')
 
-    love.graphics.printf('Press Enter to Play Again!', 0, 160, VIRTUAL_WIDTH, 'center')
+    if self.score > 3 then
+        -- display medal image based on score
+        if self.score > 3 and self.score <= 5 then
+            love.graphics.printf('You got a Bronze medal!', 0, 150, VIRTUAL_WIDTH, 'center')
+            love.graphics.draw(bronzeMedal, VIRTUAL_WIDTH / 2 - 128*0.3/2, 170, 0, 0.3, 0.3)
+        elseif self.score > 5 and  self.score <= 8 then
+            love.graphics.printf('You got a Selver medal!', 0, 150, VIRTUAL_WIDTH, 'center')
+            love.graphics.draw(silverMedal, VIRTUAL_WIDTH / 2 - 128*0.3/2, 170, 0, 0.3, 0.3)
+        elseif self.score > 8 then
+            love.graphics.printf('You got a Gold medal!', 0, 150, VIRTUAL_WIDTH, 'center')
+            love.graphics.draw(goldMedal, VIRTUAL_WIDTH / 2 - 128*0.3/2, 170, 0, 0.3, 0.3)
+        end
+        love.graphics.printf('Press Enter to Play Again!', 0, 220, VIRTUAL_WIDTH, 'center')
+    else
+        love.graphics.printf('Press Enter to Play Again!', 0, 160, VIRTUAL_WIDTH, 'center')
+    end
+
 end
