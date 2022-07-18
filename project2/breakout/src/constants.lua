@@ -23,3 +23,6 @@ PADDLE_SPEED = 200
 
 -- PowerUp movement speed
 POWER_UP_SPEED = 30
+
+-- Define first time the power up should spawn
+POWERUP_SPAWN_INTERVAL = 10
