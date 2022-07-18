@@ -14,10 +14,9 @@
     Over screen if at 0 health or the Serve screen otherwise.
 ]]
 
-PlayState = Class{__includes = BaseState}
+local POINTS_TO_GROW_PADDLE = 300
 
--- Define first time the power up should spawn
-POWERUP_SPAWN_INTERVAL = 10
+PlayState = Class{__includes = BaseState}
 
 --[[
     We initialize what's in our PlayState via a state table that we pass between
@@ -34,9 +33,8 @@ function PlayState:enter(params)
     self.level = params.level
     self.powerups = {}
     self.timer = 0
-
-
     self.recoverPoints = 5000
+    self.increase_paddle = self.score + POINTS_TO_GROW_PADDLE
 
     -- give a ball a random starting velocity
     params.ball.dx = math.random(-200, 200)
@@ -188,6 +186,9 @@ function PlayState:update(dt)
             if #self.balls == 0 then
                 self.health = self.health - 1
                 gSounds['hurt']:play()
+                
+                -- shrinks the paddle when losing a life
+                self.paddle:shrink()
 
                 if self.health == 0 then
                     gStateMachine:change('game-over', {
@@ -259,6 +260,14 @@ function PlayState:update(dt)
         end
     end
 
+    -- If the current score is high enought, grow the paddle
+    if self.score > self.increase_paddle then
+        -- Grow the paddle
+        self.paddle:grow()
+        -- update the amount of points needed to increase the paddle
+        self.increase_paddle = self.increase_paddle + POINTS_TO_GROW_PADDLE
+    end
+
 end
 
 function PlayState:render()
@@ -273,8 +282,6 @@ function PlayState:render()
     end
     
     self.paddle:render()
-
-    print(#self.balls)
 
     -- render all balls
     for k, ball in pairs(self.balls) do

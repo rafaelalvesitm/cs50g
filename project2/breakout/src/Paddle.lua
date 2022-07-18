@@ -75,3 +75,18 @@ function Paddle:render()
     love.graphics.draw(gTextures['main'], gFrames['paddles'][self.size + 4 * (self.skin - 1)],
         self.x, self.y)
 end
+
+-- Grow the paddle to a maximum of 4
+function Paddle:grow()
+    -- update the size of the paddle
+    self.size = math.min(self.size + 1, 4 )
+    -- update the size of the paddle's hitbox
+    self.width = 32 * self.size
+end
+
+-- shrinks the paddle to a minimum of 4
+function Paddle:shrink()
+    self.size = math.max(1, self.size - 1)
+    -- update the size of the paddle's hitbox
+    self.width = 32 * self.size
+end
