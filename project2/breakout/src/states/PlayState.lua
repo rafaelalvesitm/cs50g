@@ -35,6 +35,17 @@ function PlayState:enter(params)
     self.timer = 0
     self.recoverPoints = 5000
     self.increase_paddle = self.score + POINTS_TO_GROW_PADDLE
+    
+    -- flag to check if there is a blocked brick
+    self.blocked_level = false
+    for k, brick in pairs(self.bricks) do
+        if brick.locked == true then
+            self.blocked_level = true
+        end
+    end
+
+    -- initially there is no key to open the locked brick
+    self.key = false
 
     -- give a ball a random starting velocity
     params.ball.dx = math.random(-200, 200)
@@ -91,12 +102,18 @@ function PlayState:update(dt)
         for j, ball in pairs(self.balls) do
             -- only check collision if we're in play
             if brick.inPlay and ball:collides(brick) then
+                if brick.locked and self.key then
+                    -- add to score
+                    self.score = self.score + 2000
+                    -- trigger the brick's hit function, which removes it from play
+                    brick:unlock()
+                elseif brick.locked == false then
+                    -- add to score
+                    self.score = self.score + (brick.tier * 200 + brick.color * 25)
 
-                -- add to score
-                self.score = self.score + (brick.tier * 200 + brick.color * 25)
-
-                -- trigger the brick's hit function, which removes it from play
-                brick:hit()
+                    -- trigger the brick's hit function, which removes it from play
+                    brick:hit()
+                end
 
                 -- if we have enough points, recover a point of health
                 if self.score > self.recoverPoints then
@@ -225,9 +242,18 @@ function PlayState:update(dt)
 
     -- Spawn a power up every 10 seconds
     if self.timer > POWERUP_SPAWN_INTERVAL then
+        -- set the timer back to 0
         self.timer = 0
-        -- Add a power up to the game
-        table.insert(self.powerups, PowerUp(2))
+
+        -- if the level has a locked brick, spawn a random power up
+        local x = math.random(2)
+        if self.blocked_level == true and x == 1 then
+            table.insert(self.powerups, PowerUp(10))
+        else
+            -- Add a power up to generate two balls
+            table.insert(self.powerups, PowerUp(2))
+        end
+
         -- Change PowerUp spawn interval 
         POWERUP_SPAWN_INTERVAL = math.random(10, 20)
     end
@@ -240,21 +266,31 @@ function PlayState:update(dt)
     -- Remove the power up if it touches the paddle or the bottom of the screen
     for k, powerup in pairs(self.powerups) do
         if powerup:collides(self.paddle) then
+            if powerup.skin == 10 then
+                -- skin 10 means the key power up
+                self.blocked_level = false
+                powerup:hit()
+                self.key = true
+            else
+                -- other skin means the two ball power up
+                powerup:hit()
+                ball_1 = Ball()
+                ball_1.skin = math.random(7)
+                ball_1.x = VIRTUAL_WIDTH / 2 - 8
+                ball_1.y = self.paddle.y - 8
+                ball_1.dx = math.random(-200, 200)
+                ball_1.dy = math.random(-50, -60)
+                ball_2 = Ball()
+                ball_2.skin = math.random(7)
+                ball_2.x = VIRTUAL_WIDTH / 2 - 8
+                ball_2.y = self.paddle.y - 8
+                ball_2.dx = math.random(-200, 200)
+                ball_2.dy =math.random(-50, -60)
+                table.insert(self.balls, ball_1)
+                table.insert(self.balls, ball_2)
+            end
+            -- remove the power up from the table
             table.remove(self.powerups, k)
-            powerup:hit()
-            -- Creates two balls, one in the left and one in the right with random velocities
-            left_ball = Ball(1)
-            left_ball.x = 50
-            left_ball.y = self.paddle.y - 8
-            left_ball.dx = math.random(-200, 200)
-            left_ball.dy = math.random(-50, -60)
-            right_ball = Ball(1)
-            right_ball.x = VIRTUAL_WIDTH - 50
-            right_ball.y = self.paddle.y - 8
-            right_ball.dx = math.random(-200, 200)
-            right_ball.dy =math.random(-50, -60)
-            table.insert(self.balls, left_ball)
-            table.insert(self.balls, right_ball)
         elseif powerup.y > VIRTUAL_HEIGHT then
             table.remove(self.powerups, k)
         end

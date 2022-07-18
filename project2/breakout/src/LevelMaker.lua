@@ -47,6 +47,13 @@ function LevelMaker.createMap(level)
     -- highest color of the highest tier, no higher than 5
     local highestColor = math.min(5, level % 5 + 3)
 
+    -- Randomly assign a locked brick for this level
+    local lockedFlag =  math.random(1, 2) == 1 and true or false
+    
+    -- Get a random brick, meaning a random row and column in the grid
+    local lockedBrickRow = math.random(1, numRows)
+    local lockedBrickCol = math.random(1, numCols)
+
     -- lay out bricks such that they touch each other and fill the space
     for y = 1, numRows do
         -- whether we want to enable skipping for this row
@@ -63,7 +70,7 @@ function LevelMaker.createMap(level)
         
         -- used only when we want to skip a block, for skip pattern
         local skipFlag = math.random(2) == 1 and true or false
-
+        
         -- used only when we want to alternate a block, for alternate pattern
         local alternateFlag = math.random(2) == 1 and true or false
 
@@ -111,6 +118,11 @@ function LevelMaker.createMap(level)
                 b.color = solidColor
                 b.tier = solidTier
             end 
+
+            -- set the brick's locked status
+            if y == lockedBrickRow and x == lockedBrickCol then
+                b.locked = lockedFlag
+            end
 
             table.insert(bricks, b)
 

@@ -145,3 +145,10 @@ function GenerateQuadsPowerUps(atlas)
 
     return quads
 end
+
+--[[
+    This function is specifically made to piece out the locked bricks from the sprite sheet.
+]]
+function GenerateQuadsLocked(atlas)
+    return love.graphics.newQuad(160, 48, 32, 16, atlas:getDimensions())
+end
