@@ -155,9 +155,7 @@ function PlayState:update(dt)
                 newTile.gridY = tempY
 
                 -- swap tiles in the tiles table
-                self.board.tiles[self.highlightedTile.gridY][self.highlightedTile.gridX] =
-                    self.highlightedTile
-
+                self.board.tiles[self.highlightedTile.gridY][self.highlightedTile.gridX] = self.highlightedTile
                 self.board.tiles[newTile.gridY][newTile.gridX] = newTile
 
                 -- tween coordinates between the two so they swap
@@ -168,10 +166,37 @@ function PlayState:update(dt)
                 
                 -- once the swap is finished, we can tween falling blocks as needed
                 :finish(function()
-                    self:calculateMatches()
+                    -- check for matches
+                    if self.board:calculateMatches() == false then
+                        -- swamp tiles back into place
+                        local tempTile = newTile
+                        newTile = self.highlightedTile
+                        self.highlightedTile = tempTile
+
+                        self.highlightedTile.gridX = newTile.gridX
+                        self.highlightedTile.gridY = newTile.gridY
+                        newTile.gridX = tempX
+                        newTile.gridY = tempY
+
+                        -- swap tiles in the tiles table
+                        self.board.tiles[self.highlightedTile.gridY][self.highlightedTile.gridX] = self.highlightedTile
+                        self.board.tiles[newTile.gridY][newTile.gridX] = newTile
+
+                        Timer.tween(0.1, {
+                            [self.highlightedTile] = {x = newTile.x, y = newTile.y},
+                            [newTile] = {x = self.highlightedTile.x, y = self.highlightedTile.y}
+                        })
+                    else
+                        self:calculateMatches()
+                    end
                 end)
             end
         end
+    end
+
+    -- If no matches are possible reset the board
+    if not self.board:availableMatches() then
+        self.board = Board(VIRTUAL_WIDTH - 272, 16, self.level)
     end
 
     Timer.update(dt)

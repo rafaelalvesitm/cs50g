@@ -280,3 +280,79 @@ function Board:render()
         end
     end
 end
+
+function Board:availableMatches()
+    for y = 1, 8 do
+        for x = 1, 8 do
+            local tile = self.tiles[y][x]
+
+        end
+    end
+end
+
+--[[
+    This function checks to see if there are any possible matches in the board. 
+    It considers all possible moviments (left, right, up, down) on the board. 
+]]
+function Board:availableMatches()
+    local answer = false
+    -- Representes possible moviments in (X, Y) format
+    local moviments = {{0, -1}, {-1, 0}, {0, 1}, {1, 0}}
+    -- for each row
+    for row = 1, 8 do
+        -- for each column
+        for column = 1, 8 do
+            -- get a current tile in the board
+            local currentTile = self.tiles[row][column]
+            -- for each possible moviment (left, right, up, down)
+            for key, moviment in pairs(moviments) do
+                -- Check if the moviment is allowed, meaning it is not out of the board
+                if row + moviment[1] > 1 and row + moviment[1] < 8 and column + moviment[2] > 1 and column + moviment[2] < 8 then
+                    -- get the adjacent tile
+                    local newTile = self.tiles[row + moviment[1]][column + moviment[2]]
+                    -- if the adjacent tile is not nil
+                    if newTile then
+                        -- swamp current tile with adjacent tile
+                        local tempX = currentTile.gridX
+                        local tempY = currentTile.gridY
+                        
+                        currentTile.gridX = newTile.gridX
+                        currentTile.gridY = newTile.gridY
+
+                        newTile.gridX = tempX
+                        newTile.gridY = tempY
+        
+                        self.tiles[currentTile.gridY][currentTile.gridX] = currentTile
+                        self.tiles[newTile.gridY][newTile.gridX] = newTile
+                        
+                        -- Check if there is a match in the new position
+                        if self:calculateMatches() then 
+                            answer = true 
+                        end
+        
+                        -- revert back to original position
+                        local retX = currentTile.gridX
+                        local retY = currentTile.gridY
+                        
+                        local newRetTile = newTile
+
+                        currentTile.gridX = newRetTile.gridX
+                        currentTile.gridY = newRetTile.gridY
+                        newRetTile.gridX = retX
+                        newRetTile.gridY = retY
+        
+                        self.tiles[currentTile.gridY][currentTile.gridX] = currentTile
+                        self.tiles[newRetTile.gridY][newRetTile.gridX] = newRetTile
+                        
+                        -- Use to optimize the game, if there is at least one match break the loop. 
+                        -- Otherwise it would check for all possible moviments in the board. 
+                        if answer == true then 
+                            return answer 
+                        end
+                    end
+                end
+            end
+        end
+    end
+    return answer
+end
