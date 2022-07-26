@@ -10,31 +10,10 @@ PlayState = Class{__includes = BaseState}
 function PlayState:init()
     self.camX = 0
     self.camY = 0
-    self.level = LevelMaker.generate(100, 10)
-    self.tileMap = self.level.tileMap
     self.background = math.random(3)
     self.backgroundX = 0
-
     self.gravityOn = true
-    self.gravityAmount = 6
-
-    self.player = Player({
-        x = 0, y = 0,
-        width = 16, height = 20,
-        texture = 'green-alien',
-        stateMachine = StateMachine {
-            ['idle'] = function() return PlayerIdleState(self.player) end,
-            ['walking'] = function() return PlayerWalkingState(self.player) end,
-            ['jump'] = function() return PlayerJumpState(self.player, self.gravityAmount) end,
-            ['falling'] = function() return PlayerFallingState(self.player, self.gravityAmount) end
-        },
-        map = self.tileMap,
-        level = self.level
-    })
-
-    self:spawnEnemies()
-
-    self.player:changeState('falling')
+    self.gravityAmount = 2
 end
 
 function PlayState:update(dt)
@@ -54,6 +33,48 @@ function PlayState:update(dt)
     elseif self.player.x > TILE_SIZE * self.tileMap.width - self.player.width then
         self.player.x = TILE_SIZE * self.tileMap.width - self.player.width
     end
+end
+
+function PlayState:enter(params)
+    self.width = params.width
+    self.level = LevelMaker.generate(self.width, 10)
+    self.tileMap = self.level.tileMap
+
+    -- Load the player into the playstate
+    self.player = Player({
+        x = 0, y = 0,
+        width = 16, height = 20,
+        texture = 'green-alien',
+        stateMachine = StateMachine {
+            ['idle'] = function() return PlayerIdleState(self.player) end,
+            ['walking'] = function() return PlayerWalkingState(self.player) end,
+            ['jump'] = function() return PlayerJumpState(self.player, self.gravityAmount) end,
+            ['falling'] = function() return PlayerFallingState(self.player, self.gravityAmount) end
+        },
+        map = self.tileMap,
+        level = self.level
+    })
+
+    self.player.score = params.score or 0
+
+    -- Move the player to a column that has a ground tile
+    for x = 1, self.tileMap.width do 
+        local ground = false -- assume there is no ground at the beggining
+        for y = 1, self.tileMap.height do -- 
+            local tile = self.tileMap.tiles[y][x] -- get the current tile for each row
+            if tile.id == TILE_ID_GROUND then -- if one of then is a ground tile, set the player's spawn to that column
+                ground = true
+            end
+        end
+        if ground then -- if there is ground, set the player's spawn to that column
+            self.player.x = (x - 1) * TILE_SIZE
+            break
+        end
+    end
+
+    self:spawnEnemies()
+
+    self.player:changeState('falling')
 end
 
 function PlayState:render()

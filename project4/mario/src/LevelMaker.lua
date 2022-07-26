@@ -22,6 +22,16 @@ function LevelMaker.generate(width, height)
     local tileset = math.random(20)
     local topperset = math.random(20)
 
+    -- flag to check if there is a key a lock block places on the level
+    local keyLock_placed = false
+    local key_placed = false
+
+    -- flag to check if the player has the key
+    local key = false
+
+    -- flag if the level is unlock and the flag can be rendered
+    local flag = false
+
     -- insert blank tables into tiles for later access
     for x = 1, height do
         table.insert(tiles, {})
@@ -37,8 +47,8 @@ function LevelMaker.generate(width, height)
                 Tile(x, y, tileID, nil, tileset, topperset))
         end
 
-        -- chance to just be emptiness
-        if math.random(7) == 1 then
+        -- chance to just be emptiness and make sure the penultimate colunm is filled (should spawn a flag at that location)
+        if math.random(7) == 1 and x ~= width - 1 then
             for y = 7, height do
                 table.insert(tiles[y],
                     Tile(x, y, tileID, nil, tileset, topperset))
@@ -55,7 +65,8 @@ function LevelMaker.generate(width, height)
             end
 
             -- chance to generate a pillar
-            if math.random(8) == 1 then
+            if math.random(8) == 1 and x ~= width - 1 then
+
                 blockHeight = 2
                 
                 -- chance to generate bush on pillar
@@ -80,8 +91,9 @@ function LevelMaker.generate(width, height)
                 tiles[6][x] = Tile(x, 6, tileID, nil, tileset, topperset)
                 tiles[7][x].topper = nil
             
+
             -- chance to generate bushes
-            elseif math.random(8) == 1 then
+            elseif math.random(8) == 1 and x ~= width - 1 then
                 table.insert(objects,
                     GameObject {
                         texture = 'bushes',
@@ -95,8 +107,135 @@ function LevelMaker.generate(width, height)
                 )
             end
 
-            -- chance to spawn a block
-            if math.random(10) == 1 then
+            -- chance to spawn a jump block
+            -- chance to spawn a key after first third of the level
+            if math.random(10) == 1 and x ~= width - 1 then 
+                if key_placed == false then 
+                    key_placed = true
+
+                    -- maintain reference so we can set it to nil
+                    local key = GameObject {
+                            texture = 'keys_and_locks',
+                            x = (x - 1) * TILE_SIZE,
+                            y = (blockHeight - 1) * TILE_SIZE,
+                            width = 16,
+                            height = 16,
+
+                            -- make it a random variant of a key
+                            frame = math.random(1, #KEYS_AND_LOCKS),
+                            collidable = false,
+                            consumable = true,
+                            solid = false,
+
+                            -- collision function takes itself
+                            onConsume = function(player, object)
+                                gSounds['pickup']:play()
+                                key = true
+                            end
+                        }
+
+                    table.insert(objects, key)
+                end
+            -- chance to spawn a lock block after 1/2 of the level
+            elseif math.random(10) == 1 and x ~= width - 1 then
+                if keyLock_placed == false then 
+                    keyLock_placed = true
+                    local lock = GameObject {
+                            texture = 'keys_and_locks',
+                            x = (x - 1) * TILE_SIZE,
+                            y = (blockHeight - 1) * TILE_SIZE,
+                            width = 16,
+                            height = 16,
+
+                            -- make it a random variant of a key
+                            frame = math.random(5, #KEYS_AND_LOCKS + 4),
+                            collidable = true,
+                            consumable = false,
+                            solid = true,
+
+                            -- collision function takes itself
+                            onCollide = function(obj)
+                                -- if the player has not gotten the key or it is alread unlocked, do nothing
+                                if key == false or flag == true then 
+                                    gSounds['empty-block']:play()
+                                -- if the player has the key allow the player to get to the end of the level
+                                elseif key == true then
+                                    table.remove(objects, lock)
+                                    gSounds['pickup']:play()
+                                    lock = nil
+                                    flag = true
+                                    -- make a pole at the end of the level
+                                    local base_flag = GameObject {
+                                        texture = 'flags',
+                                        frame = 25,
+                                        x = (width - 2) * TILE_SIZE + TILE_SIZE / 2,
+                                        y = (4 - 1) * TILE_SIZE,
+                                        width = 16,
+                                        height = 16,
+                                        consumable = true,
+                                        onConsume = function(player, object)
+                                            gStateMachine:change('play', {
+                                                width = math.floor(width * 1.5),
+                                                score = player.score
+                                            })
+                                        end
+                                    }
+                                    local base_pole = GameObject {
+                                        texture = 'flags',
+                                        frame = 23,
+                                        x = (width - 2) * TILE_SIZE,
+                                        y = (6 - 1) * TILE_SIZE,
+                                        width = 16,
+                                        height = 16,
+                                        consumable = true,
+                                        onConsume = function(player, object)
+                                            gStateMachine:change('play', {
+                                                width = math.floor(width * 1.5),
+                                                score = player.score
+                                            })
+                                        end
+                                    }
+                                    local middle_pole = GameObject {
+                                        texture = 'flags',
+                                        frame = 14,
+                                        x = (width - 2) * TILE_SIZE,
+                                        y = (5 - 1) * TILE_SIZE,
+                                        width = 16,
+                                        height = 16,
+                                        consumable = true,
+                                        onConsume = function(player, object)
+                                            gStateMachine:change('play', {
+                                                width = math.floor(width * 1.5),
+                                                score = player.score
+                                            })
+                                        end
+                                    }
+                                    local top_pole = GameObject {
+                                        texture = 'flags',
+                                        frame = 5,
+                                        x = (width - 2) * TILE_SIZE,
+                                        y = (4 - 1) * TILE_SIZE,
+                                        width = 16,
+                                        height = 16,
+                                        consumable = true,
+                                        onConsume = function(player, object)
+                                            print(player.score)
+                                            gStateMachine:change('play', {
+                                                width = math.floor(width * 1.5),
+                                                score = player.score
+                                            })
+                                        end
+                                    }
+                                    table.insert(objects, base_flag)
+                                    table.insert(objects, base_pole)
+                                    table.insert(objects, middle_pole)
+                                    table.insert(objects, top_pole)
+                                end
+                            end
+                        }
+                    table.insert(objects, lock)
+                end
+            elseif math.random(10) == 1 and x ~= width - 1 then
                 table.insert(objects,
 
                     -- jump block
@@ -130,7 +269,7 @@ function LevelMaker.generate(width, height)
                                         width = 16,
                                         height = 16,
                                         frame = math.random(#GEMS),
-                                        collidable = true,
+                                        collidable = false,
                                         consumable = true,
                                         solid = false,
 
