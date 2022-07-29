@@ -26,5 +26,14 @@ GAME_OBJECT_DEFS = {
     },
     ['pot'] = {
         -- TODO
+    },
+    ['heart'] = {
+        type = 'heart',
+        texture = 'hearts',
+        frame = 5,
+        width = 8,
+        height = 8,
+        solid = false,
+        consumable = true,
     }
 }

@@ -51,7 +51,7 @@ function Room:generateEntities()
     for i = 1, 10 do
         local type = types[math.random(#types)]
 
-        table.insert(self.entities, Entity {
+        local entity = Entity {
             animations = ENTITY_DEFS[type].animations,
             walkSpeed = ENTITY_DEFS[type].walkSpeed or 20,
 
@@ -64,8 +64,29 @@ function Room:generateEntities()
             width = 16,
             height = 16,
 
-            health = 1
-        })
+            health = 1,
+        }
+        -- Add a onDead function to spawn a heart when the enemy dies
+        entity.onDead = function()
+            if entity.dead == false then -- create a heart only once
+                if math.random() < 0.1 then -- has a 10% chance to spawn a heart
+                    local heart = GameObject(
+                        GAME_OBJECT_DEFS['heart'],
+                        entity.x + entity.width / 2,
+                        entity.y + entity.height / 2
+                    )
+                    heart.onConsume = function(player)
+                        gSounds['pickup']:play()
+                        self.player:heal(2)
+                    end
+
+                    table.insert(self.objects, heart)
+                end
+                entity.dead = true
+            end
+        end
+
+        table.insert(self.entities, entity)
 
         self.entities[i].stateMachine = StateMachine {
             ['walk'] = function() return EntityWalkState(self.entities[i]) end,
@@ -158,7 +179,7 @@ function Room:update(dt)
 
         -- remove entity from the table if health is <= 0
         if entity.health <= 0 then
-            entity.dead = true
+            entity:onDead()
         elseif not entity.dead then
             entity:processAI({room = self}, dt)
             entity:update(dt)
@@ -182,6 +203,12 @@ function Room:update(dt)
         -- trigger collision callback on object
         if self.player:collides(object) then
             object:onCollide()
+        end
+
+        -- trigger consume callback on object
+        if self.player:collides(object) and object.consumable then
+            object:onConsume(self.player)
+            table.remove(self.objects, k)
         end
     end
 end
