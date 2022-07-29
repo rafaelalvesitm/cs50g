@@ -72,8 +72,8 @@ function Room:generateEntities()
                 if math.random() < 0.25 then -- has a 25 % chance to spawn a heart
                     local heart = GameObject(
                         GAME_OBJECT_DEFS['heart'],
-                        entity.x + entity.width / 2,
-                        entity.y + entity.height / 2
+                        entity.x,
+                        entity.y
                     )
                     heart.onConsume = function(player)
                         gSounds['pickup']:play()
@@ -134,6 +134,10 @@ function Room:generateObjects()
         math.random(MAP_RENDER_OFFSET_Y + TILE_SIZE,
                     VIRTUAL_HEIGHT - (VIRTUAL_HEIGHT - MAP_HEIGHT * TILE_SIZE) + MAP_RENDER_OFFSET_Y - TILE_SIZE - 16)
     )
+
+    -- add a collision callback, so that the player cannot walk into the pot
+    pot.onCollide = function(obj)
+    end
 
     -- add the pot the list of objects in the scene
     table.insert(self.objects, pot)
@@ -214,7 +218,11 @@ function Room:update(dt)
 
         -- trigger collision callback on object
         if self.player:collides(object) then
-            object:onCollide()
+            print('collision')
+            if love.keyboard.wasPressed('enter ') then
+                print("lifiting the pot")
+            end
+            object:onCollide(self.player)
         end
 
         -- trigger consume callback on object
