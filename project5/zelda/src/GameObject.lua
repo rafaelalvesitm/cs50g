@@ -29,6 +29,7 @@ function GameObject:init(def, x, y)
     self.y = y
     self.width = def.width
     self.height = def.height
+    self.scale = def.scale or 1
 
     -- default empty collision callback
     self.onCollide = function() end
@@ -42,13 +43,9 @@ function GameObject:update(dt)
 end
 
 function GameObject:render(adjacentOffsetX, adjacentOffsetY)
-    if self.type == "heart" then
-        love.graphics.draw(gTextures[self.texture], gFrames[self.texture][self.frame],
-            self.x, self.y, 0, 0.5, 0.5)
-    else
-        love.graphics.draw(gTextures[self.texture], gFrames[self.texture][self.states[self.state].frame or self.frame],
-        self.x + adjacentOffsetX, self.y + adjacentOffsetY)
-    end
+    love.graphics.draw(gTextures[self.texture], gFrames[self.texture][self.states[self.state].frame or self.frame],
+        self.x + adjacentOffsetX, self.y + adjacentOffsetY, 0, self.scale, self.scale)
+
 
     -- Code for debbugging pourposes. Exposes the collision box for each object. 
     --love.graphics.setColor(255, 0, 255, 255)

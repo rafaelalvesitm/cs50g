@@ -69,13 +69,9 @@ function Entity:damage(dmg)
     self.health = self.health - dmg
 end
 
--- heal the entity by a certain amount
+-- heal the entity by a certain amount, caped at 6
 function Entity:heal(dmg)
-    if self.health >= 6 then
-        self.health = 6
-    else
-        self.health = self.health + dmg
-    end
+    self.health = math.min(self.health + dmg, 6)
 end
 
 function Entity:goInvulnerable(duration)

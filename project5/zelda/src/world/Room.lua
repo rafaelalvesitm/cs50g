@@ -69,7 +69,7 @@ function Room:generateEntities()
         -- Add a onDead function to spawn a heart when the enemy dies
         entity.onDead = function()
             if entity.dead == false then -- create a heart only once
-                if math.random() < 0.1 then -- has a 10% chance to spawn a heart
+                if math.random() < 0.25 then -- has a 25 % chance to spawn a heart
                     local heart = GameObject(
                         GAME_OBJECT_DEFS['heart'],
                         entity.x + entity.width / 2,

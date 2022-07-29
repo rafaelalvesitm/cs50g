@@ -33,7 +33,14 @@ GAME_OBJECT_DEFS = {
         frame = 5,
         width = 8,
         height = 8,
+        scale = 0.6, 
         solid = false,
         consumable = true,
+        defaultState = 'full',
+        states = {
+            ['full'] =  {
+                frame = 5
+            }
+        }
     }
 }
