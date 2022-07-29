@@ -25,7 +25,19 @@ GAME_OBJECT_DEFS = {
         }
     },
     ['pot'] = {
-        -- TODO
+        type = 'pot',
+        texture = 'tiles',
+        frame = 14, -- pot is the 14th tile in the tileset
+        width = 16,
+        height = 16,
+        solid = true, 
+        consumable = false, 
+        defaultState = 'idle', -- pot is idle by default
+        states = {
+            ['idle'] = {
+                frame = 14
+            }
+        }
     },
     ['heart'] = {
         type = 'heart',

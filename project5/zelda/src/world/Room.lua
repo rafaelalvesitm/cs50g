@@ -125,6 +125,18 @@ function Room:generateObjects()
 
     -- add to list of objects in scene (only one switch for now)
     table.insert(self.objects, switch)
+
+    -- create a pot at random location
+    local pot = GameObject(
+        GAME_OBJECT_DEFS['pot'],
+        math.random(MAP_RENDER_OFFSET_X + TILE_SIZE,
+                    VIRTUAL_WIDTH - TILE_SIZE * 2 - 16),
+        math.random(MAP_RENDER_OFFSET_Y + TILE_SIZE,
+                    VIRTUAL_HEIGHT - (VIRTUAL_HEIGHT - MAP_HEIGHT * TILE_SIZE) + MAP_RENDER_OFFSET_Y - TILE_SIZE - 16)
+    )
+
+    -- add the pot the list of objects in the scene
+    table.insert(self.objects, pot)
 end
 
 --[[
