@@ -92,9 +92,9 @@ function EntityWalkState:processAI(params, dt)
 end
 
 --[[
-    Function to check if the entiti bumbps in a solid object. 
-    It should check for all the objcts 
-    It is similar to the function 
+    Function to check if the entity bumbps in a solid object. 
+    It should check for all the objects in a room.
+    Similar to the function EntityWalState:update()
 ]]
 function EntityWalkState:checkObjectsCollision(objects)
 

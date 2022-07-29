@@ -136,7 +136,11 @@ function Room:generateObjects()
     )
 
     -- add a collision callback, so that the player cannot walk into the pot
-    pot.onCollide = function(obj)
+    pot.onCollide = function(self)
+        if love.keyboard.wasPressed('return') then 
+            print("lifting the pot")
+            self.player:changeState('lift-pot')
+        end
     end
 
     -- add the pot the list of objects in the scene
@@ -218,10 +222,6 @@ function Room:update(dt)
 
         -- trigger collision callback on object
         if self.player:collides(object) then
-            print('collision')
-            if love.keyboard.wasPressed('enter ') then
-                print("lifiting the pot")
-            end
             object:onCollide(self.player)
         end
 

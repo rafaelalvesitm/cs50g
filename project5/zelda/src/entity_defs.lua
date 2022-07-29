@@ -69,7 +69,56 @@ ENTITY_DEFS = {
                 interval = 0.05,
                 looping = false,
                 texture = 'character-swing-sword'
+            }, 
+            ['lift-down'] = {
+                frames = {1, 2, 3},
+                interval = 0.1, 
+                looping = false,
+                texture = 'character-lift-pot'
+            },
+            ['lift-right'] = {
+                frames = {4, 5, 6},
+                interval = 0.1, 
+                looping = false,
+                texture = 'character-lift-pot'
+            },
+            ['lift-up'] = {
+                frames = {7, 8, 9},
+                interval = 0.1, 
+                looping = false,
+                texture = 'character-lift-pot'
+            },
+            ['lift-left'] = {
+                frames = {10, 11, 12},
+                interval = 0.1, 
+                looping = false,
+                texture = 'character-lift-pot'
+            }--[[
+            ['pot-walk-down'] = {
+                frames = {1, 2, 3},
+                interval = 0.1, 
+                looping = false,
+                texture = 'character_pot_walk'
+            },
+            ['pot-walk-right'] = {
+                frames = {4, 5, 6},
+                interval = 0.1, 
+                looping = false,
+                texture = 'character_pot_walk'
+            },
+            ['pot-walk-up'] = {
+                frames = {7, 8, 9},
+                interval = 0.1, 
+                looping = false,
+                texture = 'character_pot_walk'
+            },
+            ['pot-walk-left'] = {
+                frames = {10, 11, 12},
+                interval = 0.1, 
+                looping = false,
+                texture = 'character-lift-pot'
             }
+            ]]
         }
     },
     ['skeleton'] = {
