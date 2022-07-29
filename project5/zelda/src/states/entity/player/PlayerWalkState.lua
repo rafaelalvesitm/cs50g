@@ -41,6 +41,9 @@ function PlayerWalkState:update(dt)
     -- perform base collision detection against walls
     EntityWalkState.update(self, dt)
 
+    -- check for collision with objects
+    EntityWalkState.checkObjectsCollision(self, self.dungeon.currentRoom.objects)
+
     -- if we bumped something when checking collision, check any object collisions
     if self.bumped then
         if self.entity.direction == 'left' then
@@ -113,4 +116,25 @@ function PlayerWalkState:update(dt)
             self.entity.y = self.entity.y - PLAYER_WALK_SPEED * dt
         end
     end
+
+    --[[ check if we've collided with an solid object, if so we can't move
+    for k, object in pairs(self.dungeon.currentRoom.objects) do
+        if self.entity:collides(object) and object.solid then
+            object:onCollide(self.entity)
+            if self.entity.direction == 'left' then
+                --self.entity.x = self.entity.x - PLAYER_WALK_SPEED * dt
+                self.entity.x = self.entity.x + PLAYER_WALK_SPEED * dt
+            elseif self.entity.direction == 'right' then
+                --self.entity.x = self.entity.x + PLAYER_WALK_SPEED * dt
+                self.entity.x = self.entity.x - PLAYER_WALK_SPEED * dt
+            elseif self.entity.direction == 'up' then
+                --self.entity.y = self.entity.y - PLAYER_WALK_SPEED * dt
+                self.entity.y = self.entity.y + PLAYER_WALK_SPEED * dt
+            else
+                --self.entity.y = self.entity.y + PLAYER_WALK_SPEED * dt
+                self.entity.y = self.entity.y - PLAYER_WALK_SPEED * dt
+            end
+        end
+    end
+    ]]
 end

@@ -64,6 +64,9 @@ end
 
 function EntityWalkState:processAI(params, dt)
     local room = params.room
+
+    self:checkObjectsCollision(room.objects) -- Check for collisions with objects in the room and does not allow it to pass thought it.
+
     local directions = {'left', 'right', 'up', 'down'}
 
     if self.moveDuration == 0 or self.bumped then
@@ -86,6 +89,52 @@ function EntityWalkState:processAI(params, dt)
     end
 
     self.movementTimer = self.movementTimer + dt
+end
+
+--[[
+    Function to check if the entiti bumbps in a solid object. 
+    It should check for all the objcts 
+    It is similar to the function 
+]]
+function EntityWalkState:checkObjectsCollision(objects)
+
+    for k, object in pairs(objects) do
+        if self.entity:collides(object) and object.solid then
+            if self.entity.direction == 'left' then
+                if self.entity.x < object.x + object.width
+                    and object.y + object.height > self.entity.y + self.entity.height / 2
+                    and (object.y < self.entity.y + self.entity.height)
+                then
+                    self.entity.x = object.x + object.width
+                    self.bumped = true
+                end
+            elseif self.entity.direction == 'right' then
+                if self.entity.x + self.entity.width > object.x
+                    and object.y + object.height > self.entity.y + self.entity.height / 2
+                    and object.y < self.entity.y + self.entity.height
+                then
+                    self.entity.x = object.x - self.entity.width
+                    self.bumped = true
+                end
+            elseif self.entity.direction == 'up' then
+                if self.entity.y + self.entity.height / 2 < object.y + object.height
+                    and object.x + object.width > self.entity.x
+                    and object.x < self.entity.x + self.entity.width
+                then
+                    self.entity.y = object.y + object.height - self.entity.height / 2
+                    self.bumped = true
+                end
+            elseif self.entity.direction == 'down' then
+                if self.entity.y + self.entity.height > object.y and self.entity.y < object.y
+                    and self.entity.x < object.x + object.width
+                    and self.entity.x + self.entity.width > object.x
+                then
+                    self.entity.y = object.y - self.entity.height
+                    self.bumped = true
+                end
+            end
+        end
+    end
 end
 
 function EntityWalkState:render()
